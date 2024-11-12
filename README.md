@@ -2,7 +2,12 @@
 
 This project provides tools to load and prune large language models using a structured pruning method. The pruning method is based on the work of [Pere Martra](https://github.com/peremartra) with modifications by [Mariusz Kurman](https://github.com/mkurman).
 
+This method is applicable to all models with a Llama-like architecture that includes MLP gating, such as Llama, Phi, Mistral, Qwen, SmolLM, and others.
+
+Blog post: [Model Pruning: A New Approach](https://mkurman.substack.com/p/model-pruning-a-new-approach).
+
 Original work: [Large-Language-Model-Notebooks-Course](https://github.com/peremartra/Large-Language-Model-Notebooks-Course/blob/main/6-PRUNING/6_3_pruning_structured_llama3.2-1b_OK.ipynb).
+Pere Martra's book: [Large Language Models: Apply and Implement Strategies for Large Language Models](https://amzn.to/4eanT1g)
 
 ## Table of Contents
 
