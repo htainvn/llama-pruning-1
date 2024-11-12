@@ -1,6 +1,14 @@
 # Llama-Pruning
 
-This project provides tools to load and prune large language models using a structured pruning method. The pruning method is based on the work of Pere Martra with modifications by Mariusz Kurman.
+This project provides tools to load and prune large language models using a structured pruning method. The pruning method is based on the work of [Pere Martra](https://github.com/peremartra) with modifications by [Mariusz Kurman](https://github.com/mkurman).
+
+This method is applicable to all models with a Llama-like architecture that includes MLP gating, such as Llama, Phi, Mistral, Qwen, SmolLM, and others.
+
+Blog post: [Model Pruning: A New Approach](https://mkurman.substack.com/p/model-pruning-a-new-approach).
+
+Original work: [Large-Language-Model-Notebooks-Course](https://github.com/peremartra/Large-Language-Model-Notebooks-Course/blob/main/6-PRUNING/6_3_pruning_structured_llama3.2-1b_OK.ipynb).
+
+Pere Martra's book: [Large Language Models: Apply and Implement Strategies for Large Language Models](https://amzn.to/4eanT1g)
 
 ## Table of Contents
 
@@ -34,7 +42,7 @@ This project provides tools to load and prune large language models using a stru
 To load and prune a model, run the `main.py` script with the appropriate arguments:
 
 ```sh
-python src/main.py --model_name <model_name> --prune_percent <prune_percent> --dtype <dtype> --cache_dir <cache_dir> --device <device> --output <output> [--apply_chat_template]
+python src/main.py --model_name <model_name> --prune_percent <prune_percent> --dtype <dtype> --cache_dir <cache_dir> --device <device> --output <output> --prompt <prompt> --max_new_tokens <max_new_tokens> [--apply_chat_template]
 ```
 
 ## Arguments
@@ -45,12 +53,14 @@ python src/main.py --model_name <model_name> --prune_percent <prune_percent> --d
 - `--cache_dir`: Directory to cache the model (default: `None`).
 - `--device`: Device to use (default: `cuda`).
 - `--output`: Directory to save the pruned model (default: `pruned_model`).
-- `--apply_chat_template`: Apply chat template to the model. (default: `None`)
+- `--apply_chat_template`: Apply chat template to the model (default: `None`).
+- `--prompt`: Prompt to generate the output (default: `What is the capital of France?`).
+- `--max_new_tokens`: Maximum number of tokens to generate (default: `50`).
 
 ## Example
 
 ```sh
-python src/main.py --model_name meditsolutions/Llama-3.2-SUN-2.5B-chat --prune_percent 0.2 --dtype torch.float32 --cache_dir ./cache --device cuda --output ./pruned_model --apply_chat_template
+python src/main.py --model_name meditsolutions/Llama-3.2-SUN-2.5B-chat --prune_percent 0.2 --dtype torch.float32 --cache_dir ./cache --device cuda --output ./pruned_model --prompt "How to prepare pierogi (famous Polish dish)?" --max_new_tokens 128 --apply_chat_template
 ```
 
 ## License
