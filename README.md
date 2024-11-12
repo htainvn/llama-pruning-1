@@ -1,6 +1,8 @@
 # Llama-Pruning
 
-This project provides tools to load and prune large language models using a structured pruning method. The pruning method is based on the work of Pere Martra with modifications by Mariusz Kurman.
+This project provides tools to load and prune large language models using a structured pruning method. The pruning method is based on the work of [Pere Martra](https://github.com/peremartra) with modifications by [Mariusz Kurman](https://github.com/mkurman).
+
+Original work: [Large-Language-Model-Notebooks-Course](https://github.com/peremartra/Large-Language-Model-Notebooks-Course/blob/main/6-PRUNING/6_3_pruning_structured_llama3.2-1b_OK.ipynb).
 
 ## Table of Contents
 
