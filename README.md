@@ -69,7 +69,7 @@ python src/main.py --model_name <model_name> --prune_percent <prune_percent> --d
 ## Example
 
 ```sh
-python src/main.py --model_name meditsolutions/Llama-3.2-SUN-2.5B-chat --prune_percent 0.2 --dtype torch.float32 --cache_dir ./cache --device cuda --output ./pruned_model --prompt "How to prepare pierogi (famous Polish dish)?" --max_new_tokens 128 --apply_chat_template
+python src/main.py --model_name meditsolutions/Llama-3.2-SUN-2.5B-chat --prune_percent 0.2 --dtype float32 --cache_dir ./cache --device cuda --output ./pruned_model --prompt "How to prepare pierogi (famous Polish dish)?" --max_new_tokens 128 --apply_chat_template --test_only
 ```
 
 ## License
