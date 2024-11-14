@@ -1,5 +1,5 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
-from typing import List
+from typing import List, Union
 import torch
 
 
@@ -13,7 +13,7 @@ def get_output(
     max_new_tokens: int = 50,
     device: str = "cuda",
     apply_chat_template: bool = False,
-) -> List[str, torch.Tensor]:
+) -> List[Union[str, torch.Tensor]]:
     """
     Get the output from the model.
 
