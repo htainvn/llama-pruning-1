@@ -15,7 +15,10 @@ from src.method.mk_prune import prune_neuron_pairs
 def update_model(
     model: nn.Module,
     prune_percent: float,
-    method: str = "mk_prune",
+    prune_method: str = "mk_prune",
+    use_normalized_weights: bool = False,
+    use_layer_norm_tweaks: bool = False,
+    layer_norm_scale: Optional[float] = 4.0,
     device: Optional[str] = "cuda",
     target_size: Optional[int] = None,
 ) -> nn.Module:
@@ -26,6 +29,10 @@ def update_model(
     Args:
     - model: Model to prune.
     - prune_percent: Percentage of neurons to prune.
+    - prune_method: Method to calculate the importance score. Currently only "mk_prune" (alias: "mk") and "mk_prune_adjusted" (alias: "mka"). (default: mk_prune)
+    - use_normalized_weights: Use normalized weights to calculate the final weights.
+    - use_layer_norm_tweaks: Use layer normalization tweaks.
+    - layer_norm_scale: Layer normalization scale. Only used if use_layer_norm_tweaks is True. (default: 4.0)
     - device: Device to use.
     - target_size: Target size for the intermediate layer. (prune_percent will be ignored)
 
@@ -33,6 +40,10 @@ def update_model(
     - model: New pruned model.
     """
     new_intermediate_size = None
+
+    print(
+        f"\nPruning model, using {prune_method} method, normalizing weights: {use_normalized_weights}, layer norm tweaks: {use_layer_norm_tweaks}, layer norm scale: {layer_norm_scale}\n"
+    )
 
     # final_model = deepcopy(model)
 
@@ -45,31 +56,43 @@ def update_model(
         # by accesing layer.mlp.
         mlp = layer.mlp
 
-        if method != "mk_prune":
-            raise ValueError(f"Unknown method: {method}")
+        if prune_method == "mk_prune":
+            pass
+        elif prune_method == "mk_prune_adjusted":
+            pass
+        else:
+            raise ValueError(f"Unknown method: {prune_method}")
 
         # Call the prune_neiron_pairs with the layers and receiving the pruned.
         new_gate_proj, new_up_proj, new_down_proj, new_size = prune_neuron_pairs(
-            mlp, prune_percent, device=device, target_size=target_size
+            mlp,
+            prune_percent,
+            prune_method=prune_method,
+            use_normalized_weights=use_normalized_weights,
+            device=device,
+            target_size=target_size,
         )
 
-        if idx < len(model.model.layers) - 1:
-            last_layer_original_sum = (
-                torch.abs(mlp.down_proj.weight.data).sum()
-                + torch.abs(mlp.up_proj.weight.data).sum()
-                + torch.abs(mlp.gate_proj.weight.data).sum()
-            )
-            last_layer_pruned_sum = (
-                torch.abs(new_down_proj.weight.data).sum()
-                + torch.abs(new_up_proj.weight.data).sum()
-                + torch.abs(new_gate_proj.weight.data).sum()
-            )
+        if use_layer_norm_tweaks:
+            # Update the layer normalization weights starting from the second layer.
+            if idx < len(model.model.layers) - 1:
+                last_layer_original_sum = (
+                    torch.abs(mlp.down_proj.weight.data).sum()
+                    + torch.abs(mlp.up_proj.weight.data).sum()
+                    + torch.abs(mlp.gate_proj.weight.data).sum()
+                )
+                last_layer_pruned_sum = (
+                    torch.abs(new_down_proj.weight.data).sum()
+                    + torch.abs(new_up_proj.weight.data).sum()
+                    + torch.abs(new_gate_proj.weight.data).sum()
+                )
 
-            # Update the next layer normalization weights.
-            model.model.layers[idx + 1].input_layernorm.weight.data *= (
-                1.0
-                + (1.0 - torch.abs(last_layer_pruned_sum / last_layer_original_sum)) / 9
-            )
+                # Update the next layer normalization weights.
+                model.model.layers[idx + 1].input_layernorm.weight.data *= (
+                    1.0
+                    + (1.0 - torch.abs(last_layer_pruned_sum / last_layer_original_sum))
+                    / layer_norm_scale
+                )
 
         # Replace the Origiginal Layers with Pruned Layers.
         mlp.gate_proj = new_gate_proj
@@ -82,10 +105,13 @@ def update_model(
         if new_intermediate_size is None:
             new_intermediate_size = new_size
 
-    # Update the last layer normalization weights.
-    model.model.norm.weight.data *= (
-        1.0 + (1.0 - torch.abs(last_layer_pruned_sum / last_layer_original_sum)) / 9
-    )
+    if use_layer_norm_tweaks:
+        # Update the last layer normalization weights.
+        model.model.norm.weight.data *= (
+            1.0
+            + (1.0 - torch.abs(last_layer_pruned_sum / last_layer_original_sum))
+            / layer_norm_scale
+        )
 
     # Update the model config file.
     model.config.intermediate_size = new_intermediate_size

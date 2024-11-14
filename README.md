@@ -57,9 +57,12 @@ python src/main.py --model_name <model_name> --prune_percent <prune_percent> --d
 - `--prompt`: Prompt to generate the output (default: `What is the capital of France?`).
 - `--max_new_tokens`: Maximum number of tokens to generate (default: `50`).
 - `--target_size`: Target size for the MLPs intermediate layer. (`prune_percent` will be ignored).
-- `--test_only`: Run the test only. Do not save the model (default: `None`).
-- `--method`: Method to use for pruning. Currently only "mk_prune" is supported. (default: `mk_prune`)
-- `--print_summary`: Print the pruned model summary. (default: `None`)
+- `--prune_method`: Method to use for pruning. Currently only "mk_prune" (alias: "mk") and "mk_prune_adjusted" (alias: "mka") is supported. (default: `mk_prune`)
+- `--use_normalized_weights`: Use normalized weights to calculate the final weights. (default: `False`)
+- `--use_layer_norm_tweaks`: Apply layer normalization changes to account for the impact of pruned neurons. (default: `False`)
+- `--layer_norm_scale`: Layer normalization scale. Only used if use_layer_norm_tweaks is True. (default: 4.0)
+- `--test_only`: Run the test only. Do not save the model (default: `False`).
+- `--print_summary`: Print the pruned model summary. (default: `False`)
 
 ## Example
 

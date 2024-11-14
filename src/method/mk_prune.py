@@ -3,7 +3,7 @@ from torch import nn
 from typing import Optional
 from tqdm import tqdm
 
-from src.func.importance import get_importance
+from src.func.importance import get_importance, get_adjusted_importance
 from src.func.normalize import normalize_weight
 
 # Methods to prune the model using Pere Martra's method with Mariusz Kurman's modification.
@@ -42,6 +42,8 @@ def compute_neuron_pair_importance(
 def prune_neuron_pairs(
     mlp: nn.Module,
     prune_percent: float,
+    prune_method: str = "mk_prune",
+    use_normalized_weights: bool = False,
     device: str = "cuda",
     target_size: Optional[int] = None,
 ) -> tuple[nn.Linear, nn.Linear, nn.Linear, int]:
@@ -52,6 +54,8 @@ def prune_neuron_pairs(
     Args:
     - mlp: Layers to prune.
     - prune_percent: Percentage of neurons to prune.
+    - prune_method: Method to calculate the importance score.
+    - use_normalized_weights: Use normalized weights to calculate the final weights.
     - device: Device to use.
     - target_size: Target size for the intermediate layer. (prune_percent will be ignored)
 
@@ -71,7 +75,13 @@ def prune_neuron_pairs(
 
     # Compute importance stores. Neurons with higher importance scores
     # are considered more important and less likely to be pruned.
-    importance_scores = compute_neuron_pair_importance(gate_weight, up_weight)
+
+    if prune_method == "mk_prune":
+        importance_scores = get_importance(gate_weight, up_weight)
+    elif prune_method == "mk_prune_adjusted":
+        importance_scores = get_adjusted_importance(gate_weight + up_weight)
+    else:
+        raise ValueError(f"Unknown prune method: {prune_method}")
 
     # Store the original number of neurons in the intermediate layer.
     original_intermediate_size = gate_weight.size(0)
@@ -115,21 +125,22 @@ def prune_neuron_pairs(
     new_up_proj.weight.data = torch.clone(up_weight[indices_to_keep, :])
     new_down_proj.weight.data = torch.clone(down_weight[:, indices_to_keep])
 
-    new_gate_proj.weight.data = normalize_weight(
-        new_gate_proj.weight.data,
-        mlp.gate_proj.weight.data[~indices_to_keep, :],
-        mlp.gate_proj.weight.data,
-    )
-    new_up_proj.weight.data = normalize_weight(
-        new_up_proj.weight.data,
-        mlp.up_proj.weight.data[~indices_to_keep, :],
-        mlp.up_proj.weight.data,
-    )
-    new_down_proj.weight.data = normalize_weight(
-        new_down_proj.weight.data,
-        mlp.down_proj.weight.data[:, ~indices_to_keep],
-        mlp.down_proj.weight.data,
-    )
+    if use_normalized_weights:
+        new_gate_proj.weight.data = normalize_weight(
+            new_gate_proj.weight.data,
+            mlp.gate_proj.weight.data[~indices_to_keep, :],
+            mlp.gate_proj.weight.data,
+        )
+        new_up_proj.weight.data = normalize_weight(
+            new_up_proj.weight.data,
+            mlp.up_proj.weight.data[~indices_to_keep, :],
+            mlp.up_proj.weight.data,
+        )
+        new_down_proj.weight.data = normalize_weight(
+            new_down_proj.weight.data,
+            mlp.down_proj.weight.data[:, ~indices_to_keep],
+            mlp.down_proj.weight.data,
+        )
 
     return (
         new_gate_proj.to(original_dtype),

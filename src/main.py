@@ -74,11 +74,33 @@ if __name__ == "__main__":
         help="Run the test only. Do not save the model.",
     )
     parser.add_argument(
-        "--method",
+        "--prune_method",
         type=str,
         default="mk_prune",
-        help='Method to use for pruning. Currently only "mk_prune" is supported. (default: mk_prune)',
+        help='Method to use for pruning. Currently only "mk_prune" (alias: "mk") and "mk_prune_adjusted" (alias: "mka") is supported. (default: mk_prune)',
     )
+
+    parser.add_argument(
+        "--use_normalized_weights",
+        action="store_true",
+        default=False,
+        help="Use normalized weights to calculate the final weights.",
+    )
+
+    parser.add_argument(
+        "--use_layer_norm_tweaks",
+        action="store_true",
+        default=False,
+        help="Apply layer normalization changes to account for the impact of pruned neurons.",
+    )
+
+    parser.add_argument(
+        "--layer_norm_scale",
+        type=float,
+        default=4.0,
+        help="Layer normalization scale. Only used if use_layer_norm_tweaks is True. (default: 4.0)",
+    )
+
     parser.add_argument(
         "--print_summary",
         action="store_true",
@@ -92,6 +114,15 @@ if __name__ == "__main__":
     device = "cuda" if args.device == "cuda" and torch.cuda.is_available() else "cpu"
 
     print(f"\nUsing device: {device}")
+
+    if args.prune_method not in ["mk_prune", "mk", "mk_prune_adjusted", "mka"]:
+        raise ValueError(f"Unknown prune method: {args.prune_method}")
+    elif args.prune_method in ["mk", "mk_prune"]:
+        args.prune_method = "mk_prune"
+    elif args.prune_method in ["mka", "mk_prune_adjusted"]:
+        args.prune_method = "mk_prune_adjusted"
+    else:
+        pass
 
     # Load the model and tokenizer.
     model, tokenizer = load_model(
@@ -125,7 +156,10 @@ if __name__ == "__main__":
     model = update_model(
         model,
         args.prune_percent,
-        method=args.method,
+        prune_method=args.prune_method,
+        use_normalized_weights=args.use_normalized_weights,
+        use_layer_norm_tweaks=args.use_layer_norm_tweaks,
+        layer_norm_scale=args.layer_norm_scale,
         device=args.device,
         target_size=args.target_size,
     )
