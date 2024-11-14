@@ -84,7 +84,9 @@ It is recommended to store your configuration files in the `configs` directory f
 - `--eval_dataset`: Hugging Face dataset to evaluate the model. *WIP*
 - `--eval_dataset_size`: Size of the evaluation dataset. (default: 20) *WIP*
 
-## AutoML *WIP*
+## AutoML 
+*WIP*
+
 The AutoML feature in this project allows for automated grid search over multiple pruning parameters to find the best configuration for pruning the model. The parameters for the grid search can be specified in a YAML configuration file.
 
 The AutoML feature is currently under development and will be available in version **1.1.0**.
@@ -92,7 +94,7 @@ The AutoML feature is currently under development and will be available in versi
 ### Example YAML Configuration
 ```yaml
 model_name: "meditsolutions/Llama-3.2-SUN-2.5B-chat"
-dtype: "torch.float32"
+dtype: "float32"
 device: "cuda"
 output_dir: "pruned_model"
 prune_grid:
