@@ -28,8 +28,8 @@ def compute_neuron_pair_importance(
     - importance_scores: Importance scores for each neuron pair.
     """
 
-    gate_importance = get_importance(gate_weight) * weights[0]
-    up_importance = get_importance(up_weight) * weights[1]
+    gate_importance = get_adjusted_importance(gate_weight) * weights[0]
+    up_importance = get_adjusted_importance(up_weight) * weights[1]
 
     importance_scores = gate_importance + up_importance
 
@@ -79,7 +79,7 @@ def prune_neuron_pairs(
     if prune_method == "mk_prune":
         importance_scores = get_importance(gate_weight, up_weight)
     elif prune_method == "mk_prune_adjusted":
-        importance_scores = get_adjusted_importance(gate_weight + up_weight)
+        importance_scores = compute_neuron_pair_importance(gate_weight, up_weight)
     else:
         raise ValueError(f"Unknown prune method: {prune_method}")
 
