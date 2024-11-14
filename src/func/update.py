@@ -29,7 +29,7 @@ def update_model(
     Args:
     - model: Model to prune.
     - prune_percent: Percentage of neurons to prune.
-    - prune_method: Method to calculate the importance score. Currently only "mk_prune" (alias: "mk") and "mk_prune_adjusted" (alias: "mka"). (default: mk_prune)
+    - prune_method: Method to calculate the importance score. Currently, only "mk_prune" (alias: "mk") and "mk_prune_adjusted" (alias: "mka") are supported. (default: mk_prune)
     - use_normalized_weights: Use normalized weights to calculate the final weights.
     - use_layer_norm_tweaks: Use layer normalization tweaks.
     - layer_norm_scale: Layer normalization scale. Only used if use_layer_norm_tweaks is True. (default: 4.0)

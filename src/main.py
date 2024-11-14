@@ -77,7 +77,7 @@ if __name__ == "__main__":
         "--prune_method",
         type=str,
         default="mk_prune",
-        help='Method to use for pruning. Currently only "mk_prune" (alias: "mk") and "mk_prune_adjusted" (alias: "mka") is supported. (default: mk_prune)',
+        help='Method to use for pruning. Currently, only "mk_prune" (alias: "mk") and "mk_prune_adjusted" (alias: "mka") are supported. (default: mk_prune)',
     )
 
     parser.add_argument(
