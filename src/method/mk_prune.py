@@ -8,34 +8,6 @@ from src.func.normalize import normalize_weight
 
 # Methods to prune the model using Pere Martra's method with Mariusz Kurman's modification.
 
-
-# Maximum Absolute Weight:
-# The maximum absolute weight in a neuron might indicate its significance.
-# Note: This method was previously copied from the source given below:
-# https://github.com/peremartra/Large-Language-Model-Notebooks-Course/blob/main/6-PRUNING/6_3_pruning_structured_llama3.2-1b_OK.ipynb
-# It was modified to include new ways to calculate the importance score.
-def compute_neuron_pair_importance(
-    gate_weight: torch.Tensor, up_weight: torch.Tensor, weights: list = [1.0, 1.0]
-) -> torch.Tensor:
-    """
-    compute neuron pair importance scores (Maximum Absolute Weight)
-
-    Args:
-    - gate_weight: Weight matrix from the gate_proj layer.
-    - up_weight: Weight matrix from the up_weight layer.
-
-    Returns:
-    - importance_scores: Importance scores for each neuron pair.
-    """
-
-    gate_importance = get_adjusted_importance(gate_weight) * weights[0]
-    up_importance = get_adjusted_importance(up_weight) * weights[1]
-
-    importance_scores = gate_importance + up_importance
-
-    return importance_scores
-
-
 # Prunes a specific percentatge of neurons from the MLP (feed forward layers).
 # Note: This method is copied from the source given below:
 # https://github.com/peremartra/Large-Language-Model-Notebooks-Course/blob/main/6-PRUNING/6_3_pruning_structured_llama3.2-1b_OK.ipynb
@@ -46,6 +18,7 @@ def prune_neuron_pairs(
     use_normalized_weights: bool = False,
     device: str = "cuda",
     target_size: Optional[int] = None,
+    gate_up_weight_weights: Optional[list] = [1.0, 1.0],
 ) -> tuple[nn.Linear, nn.Linear, nn.Linear, int]:
     """
     Reduces the dimensions of the **gate_proj**,**up_proj**, **down_proj**
@@ -58,6 +31,7 @@ def prune_neuron_pairs(
     - use_normalized_weights: Use normalized weights to calculate the final weights.
     - device: Device to use.
     - target_size: Target size for the intermediate layer. (prune_percent will be ignored)
+    - gate_up_weight_weights: Weights for the gate and up weights. (default: [1.0, 1.0])
 
     Returns:
     - new_gate_proj, new_up_proj, new_down_proj:  New pruned layers.
@@ -77,9 +51,9 @@ def prune_neuron_pairs(
     # are considered more important and less likely to be pruned.
 
     if prune_method == "mk_prune":
-        importance_scores = get_importance(gate_weight, up_weight)
+        importance_scores = get_importance(gate_weight, up_weight, weights=gate_up_weight_weights)
     elif prune_method == "mk_prune_adjusted":
-        importance_scores = compute_neuron_pair_importance(gate_weight, up_weight)
+        importance_scores = get_adjusted_importance(gate_weight, up_weight, weights=gate_up_weight_weights)
     else:
         raise ValueError(f"Unknown prune method: {prune_method}")
 

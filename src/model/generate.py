@@ -1,6 +1,11 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
 from typing import List, Union
 import torch
+import logging
+
+from logging import getLogger
+
+logger = getLogger()
 
 
 # Get the output from the model.
@@ -13,6 +18,7 @@ def get_output(
     max_new_tokens: int = 50,
     device: str = "cuda",
     apply_chat_template: bool = False,
+    quiet: bool = False,
 ) -> List[Union[str, torch.Tensor]]:
     """
     Get the output from the model.
@@ -24,11 +30,16 @@ def get_output(
     - max_new_tokens: Maximum number of tokens to generate.
     - device: Device to use.
     - apply_chat_template: Apply chat template to the model
+    - quiet: If True, the output will not be printed.
 
     Returns:
     - generated: Generated output.
     - logits: Logits generated.
     """
+
+    if tokenizer.pad_token_id is None:
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token_id = tokenizer.eos_token_id
 
     if apply_chat_template:
         prompt = [{"role": "user", "content": prompt}]
@@ -47,16 +58,27 @@ def get_output(
         temperature=None,
         top_p=None,
         use_cache=True,
-        streamer=streamer,
+        streamer=streamer if quiet is False else None,
         eos_token_id=tokenizer.eos_token_id,
-        do_sample=False,  # Disable sampling
-        num_beams=1,  # Use beam search
-        early_stopping=True,  # Stop when end-of-sequence token is generated
-        no_repeat_ngram_size=None,  # Prevent repetition of 2-grams
+        do_sample=False,
+        no_repeat_ngram_size=None,
     )
 
     with torch.no_grad():
         logits = model(**inputs).logits.cpu()
-    generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    generated = tokenizer.decode(outputs[0], skip_special_tokens=False)
+
+    # Ensure the logger has a FileHandler
+    file_handler = None
+    for handler in logger.handlers:
+        if isinstance(handler, logging.FileHandler):
+            file_handler = handler
+            break
+
+    if file_handler:
+        file_handler.stream.write("\n\n" + generated + "\n\n")
+        file_handler.flush()
+
+    print()
 
     return generated, logits

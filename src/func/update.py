@@ -2,10 +2,13 @@ import torch
 import torch.nn as nn
 from typing import Optional
 from tqdm import tqdm
+from logging import getLogger
 
 from copy import deepcopy
 
 from src.method.mk_prune import prune_neuron_pairs
+
+logger = getLogger()
 
 
 # Iterates throught the model layers and applies pruning.
@@ -21,6 +24,8 @@ def update_model(
     layer_norm_scale: Optional[float] = 4.0,
     device: Optional[str] = "cuda",
     target_size: Optional[int] = None,
+    gate_up_weight_weights: Optional[list] = [1.0, 1.0],
+    deepcopy_model: bool = False,
 ) -> nn.Module:
     """
     It modifies each mlp layer present in model, to retain only the most
@@ -35,17 +40,25 @@ def update_model(
     - layer_norm_scale: Layer normalization scale. Only used if use_layer_norm_tweaks is True. (default: 4.0)
     - device: Device to use.
     - target_size: Target size for the intermediate layer. (prune_percent will be ignored)
+    - gate_up_weight_weights: Weights for the gate and up weights. (default: [1.0, 1.0])
+    - deepcopy_model: If True, the model will be copied before pruning. (default: False)
 
     Returns:
     - model: New pruned model.
     """
     new_intermediate_size = None
 
-    print(
-        f"\nPruning model, using {prune_method} method, normalizing weights: {use_normalized_weights}, layer norm tweaks: {use_layer_norm_tweaks}, layer norm scale: {layer_norm_scale}\n"
+    logger.info(
+        f"Pruning model, using {prune_method} method, "
+        f"normalizing weights: {use_normalized_weights}, "
+        f"layer norm tweaks: {use_layer_norm_tweaks}, "
+        f"layer norm scale: {layer_norm_scale} "
+        f"target size: {target_size}, "
+        f"gate up weight weights: {gate_up_weight_weights}\n"
     )
 
-    # final_model = deepcopy(model)
+    if deepcopy_model:
+        model = deepcopy(model)
 
     # loop for each model layer.
     for idx, layer in tqdm(
@@ -71,6 +84,7 @@ def update_model(
             use_normalized_weights=use_normalized_weights,
             device=device,
             target_size=target_size,
+            gate_up_weight_weights=gate_up_weight_weights,
         )
 
         if use_layer_norm_tweaks:

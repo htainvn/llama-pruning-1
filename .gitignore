@@ -4,4 +4,6 @@ venv
 /**/.vscode/
 /**/.idea/
 /**/.mypy_cache/
-prune*
+prune*/
+logs/*
+configs/*
