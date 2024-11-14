@@ -48,7 +48,7 @@ python src/main.py --model_name <model_name> --prune_percent <prune_percent> --d
 ## Arguments
 
 - `--model_name`: Name of the model to load (default: `meditsolutions/Llama-3.2-SUN-2.5B-chat`).
-- `--prune_percent`: Percentage of neurons to prune (default: `0.2`).
+- `--prune_percent`: Percentage of MLP neurons to prune (default: `0.2`).
 - `--dtype`: Data type to use (default: `float32`).
 - `--cache_dir`: Directory to cache the model (default: `None`).
 - `--device`: Device to use (default: `cuda`).
@@ -56,6 +56,10 @@ python src/main.py --model_name <model_name> --prune_percent <prune_percent> --d
 - `--apply_chat_template`: Apply chat template to the model (default: `None`).
 - `--prompt`: Prompt to generate the output (default: `What is the capital of France?`).
 - `--max_new_tokens`: Maximum number of tokens to generate (default: `50`).
+- `--target_size`: Target size for the MLPs intermediate layer. (`prune_percent` will be ignored).
+- `--test_only`: Run the test only. Do not save the model (default: `None`).
+- `--method`: Method to use for pruning. Currently only "mk_prune" is supported. (default: `mk_prune`)
+- `--print_summary`: Print the pruned model summary. (default: `None`)
 
 ## Example
 
