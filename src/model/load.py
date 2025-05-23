@@ -22,7 +22,7 @@ def load_model(device: str = 'cuda', dtype: Optional[Union[str, dtype]] = torch.
     """
     #Load the model and tokenizer.
 
-    base_model = AutoModelForCausalLM.from_pretrained("unsloth/phi-4-bnb-4bit", torch_dtype=dtype, cache_dir=cache_dir, device_map=device)
+    base_model = AutoModelForCausalLM.from_pretrained("unsloth/phi-4-bnb-4bit", torch_dtype=dtype, cache_dir=cache_dir, device_map=device, load_in_4bit=True)
     tokenizer = AutoTokenizer.from_pretrained("unsloth/phi-4-bnb-4bit", use_fast=True)
 
     model = PeftModel.from_pretrained(base_model, lora_path)
