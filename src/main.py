@@ -228,12 +228,13 @@ if __name__ == "__main__":
     logger.debug(f"{config}")
     logger.info(f"Using device: {device}")
 
-    # Load the model and tokenizer.
+    # Load the model and tokenizer through Loras
     model, tokenizer = load_model(
-        model_name=config.model_name,
         dtype=dtype,
+        device=device,
         cache_dir=config.cache_dir,
-        device=config.device,
+        apply_chat_template=config.apply_chat_template,
+        lora_path=config.model_name,
     )
 
     simple_evaluator = None

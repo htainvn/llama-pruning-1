@@ -1,0 +1,33 @@
+model_name: "/content/drive/MyDrive/Couplet-Data/loras/phi-4-ALL"
+prune_percent: 0.2
+dtype: "float32"
+cache_dir: null
+device: "cuda"
+output: "results/pruned_model"
+apply_chat_template: true
+prompt: |
+  You are a highly knowledgeable and careful translator, specializing in translating Classical Chinese texts into clear and natural Modern Vietnamese. Your primary task is to translate short Classical Chinese sentences, especially poetic couplets, with cultural and stylistic sensitivity.
+  The input will include:
+  - Chinese Text: a sentence in Classical Chinese.
+  - Type: either "Couplet" or "Others".
+  Translation guidelines:
+  - If the type is "Couplet", prioritize preserving the parallelism, rhythm, and imagery. Translate poetically but still accessibly for modern readers. Ensure the two lines maintain a balanced structure in Vietnamese.
+  - If the type is "Others", focus on producing a clear and accurate translation, emphasizing meaning over form. Natural modern Vietnamese phrasing is preferred.
+  - Always translate into natural, fluent Modern Vietnamese that aligns with contemporary usage.
+  - Do not include explanations or transliterations—output only the translated sentence.
+  Perform translations faithfully and creatively depending on the type.
+
+  Chinese Text: 草間霜露古今情
+  Type: Others
+max_new_tokens: 512
+target_size: null
+log_dir: "logs"
+test_only: false
+prune_method: "mk_prune"
+use_normalized_weights: false
+use_layer_norm_tweaks: false
+layer_norm_scale: 4.0
+gate_up_weight_weights: [1.0, 1.0]
+print_summary: false
+quiet: false
+stop_logging: false
