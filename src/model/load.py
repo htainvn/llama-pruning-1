@@ -31,7 +31,7 @@ def load_model(device: str = 'cuda', dtype: Optional[Union[str, dtype]] = torch.
         bnb_4bit_compute_dtype=torch.float16  # or bfloat16
     )
 
-    base_model = AutoModelForCausalLM.from_pretrained("unsloth/phi-4-bnb-4bit", torch_dtype=dtype, cache_dir=cache_dir, device_map=device, quantization_config=quant_config)
+    base_model = AutoModelForCausalLM.from_pretrained("unsloth/phi-4-bnb-4bit", torch_dtype=dtype, cache_dir=cache_dir, device_map=device, quantization_config=quant_config, low_cpu_mem_usage=True)
     tokenizer = AutoTokenizer.from_pretrained("unsloth/phi-4-bnb-4bit", use_fast=True)
 
     model = PeftModel.from_pretrained(base_model, lora_path)
