@@ -7,7 +7,7 @@ from peft import PeftModel
 import torch
 
 # Load the model and tokenizer.
-def load_model(device: str = 'cuda', dtype: Optional[Union[str, dtype]] = torch.float32, cache_dir: Optional[str] = None, lora_path: str) -> tuple[AutoModelForCausalLM, AutoTokenizer]:
+def load_model(device: str = 'cuda', dtype: Optional[Union[str, dtype]] = torch.float32, cache_dir: Optional[str] = None, lora_path: str = None) -> tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
     Loads the model and tokenizer.
 
