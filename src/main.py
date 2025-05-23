@@ -233,7 +233,6 @@ if __name__ == "__main__":
         dtype=config.dtype,
         device=config.device,
         cache_dir=config.cache_dir,
-        apply_chat_template=config.apply_chat_template,
         lora_path=config.model_name,
     )
 
